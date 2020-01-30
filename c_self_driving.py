@@ -21,7 +21,10 @@ def next_schedule(schedule, bonus_rides, total_steps):
         ride = bonus_rides[0]
 
         finish_time = cumm_steps + distance(last_ride[2], ride[1]) + distance(ride[1], ride[2])
-        print(f"vehicle[{vehicle}]: ride:{ride[0]}, finish_time:{finish_time}")
+        c = 0
+        if finish_time > total_steps:
+            print(f"vehicle[{vehicle}]: ride:{ride[0]}, finish_time:{finish_time}")
+            c+=1
         # max_dist_rides = sorted(bonus_rides[:21], key=lambda x: distance(x[1], x[2]), reverse=True)
 
         # schedule[vehicle][0].append(min_dist_ride[2])
@@ -45,6 +48,9 @@ def next_schedule(schedule, bonus_rides, total_steps):
         #     del bonus_rides[bonus_rides.index(ride)]
 
         if(len(bonus_rides) == 0): return schedule, bonus_rides
+
+
+    print(f"total not valid rides: {c}")
 
     return schedule, bonus_rides
 
