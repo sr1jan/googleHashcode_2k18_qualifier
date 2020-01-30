@@ -5,34 +5,59 @@ def distance(start, end):
     return x + y
 
 def next_schedule(schedule, bonus_rides, total_steps):
-    # assigning next ride to each vehicle according min distance
-    # from current vehicle pos to next ride starting point
-    # and also the bonus
-
     for vehicle in schedule:
         last_ride = rides_completed[schedule[vehicle][0][-1]]
         cumm_steps = schedule[vehicle][1]
+
+        if vehicle <= 61 and ((cumm_steps/total_steps) * 100) < 55.0:
+            bonus_rides = sorted(bonus_rides, key=lambda x: distance(last_ride[2], x[1]) + distance(x[1], x[2]))
+            ride = bonus_rides[0]
+        else:
+            bonus_rides = sorted(bonus_rides, key=lambda x: distance(last_ride[2], x[1]))
+            max_ride = sorted(bonus_rides[:21], key=lambda x: distance(x[1], x[2]), reverse=True)
+            ride = max_ride[0]
+
+#         bonus_rides = sorted(bonus_rides, key=lambda x: distance(last_ride[2], x[1]))
+#         max_dist_rides = sorted(bonus_rides[:21], key=lambda x: distance(x[1], x[2]), reverse=True)
+
         # min_dist_ride = [distance from vehicle's cur pos to next ride, cumm_steps till next_ride, next_ride index]
         # min_dist_ride = [distance(last_ride[2], bonus_rides[0][1]),
         #                 cumm_steps+distance(last_ride[2],bonus_rides[0][1]),
         #                 bonus_rides[0][0]]
-        min_dist_ride = [0,0,0]
-        bonus_rides = sorted(bonus_rides, key=lambda x: distance(last_ride[2], x[1]))
-        ride = []
-        for i, next_ride in enumerate(bonus_rides):
-            dist_next_ride = distance(last_ride[2], next_ride[1])
-            cumm_dist_next_ride = cumm_steps + dist_next_ride + distance(next_ride[1], next_ride[2])
-            if cumm_dist_next_ride <= total_steps:
-                min_dist_ride[0], min_dist_ride[1], min_dist_ride[2] =  dist_next_ride, cumm_dist_next_ride, next_ride[0]
-                ride = next_ride
-                ride_index = i
+        # ride = bonus_rides[0]
 
-        if len(ride) is 0: continue
+        # for i, next_ride in enumerate(bonus_rides[1:6]):
+        #     ride_length = distance(next_ride[1], next_ride[2])
+        #     if ride_length > distance(ride[1], ride[2]):
+        #         ride_index = 0
+        #         continue
 
-        schedule[vehicle][0].append(min_dist_ride[2])
-        schedule[vehicle][1] = min_dist_ride[1]
+        #     dist_next_ride = distance(last_ride[2], next_ride[1])
+        #     cumm_dist_next_ride = cumm_steps + dist_next_ride + ride_length
+        #     if cumm_dist_next_ride <= total_steps:
+        #         min_dist_ride[0], min_dist_ride[1], min_dist_ride[2] =  dist_next_ride, cumm_dist_next_ride, next_ride[0]
+        #         ride = next_ride
+        #         ride_index = i
+
+        # if len(ride) is 0: continue
+
+        # schedule[vehicle][0].append(min_dist_ride[2])
+        # schedule[vehicle][1] = min_dist_ride[1]
+        # rides_completed[ride[0]] = ride
+        # del bonus_rides[ride_index]
+
+        # schedule[vehicle][0].append(max_dist_rides[0][0])
+        # schedule[vehicle][1] = cumm_steps + distance(last_ride[2], max_dist_rides[0][1]) + distance(max_dist_rides[0][1], max_dist_rides[0][2])
+        # rides_completed[max_dist_rides[0][0]] = max_dist_rides[0]
+        # del bonus_rides[bonus_rides.index(max_dist_rides[0])]
+
+        schedule[vehicle][0].append(ride[0])
+        schedule[vehicle][1] = cumm_steps + distance(last_ride[2], ride[1]) + distance(ride[1], ride[2])
         rides_completed[ride[0]] = ride
-        del bonus_rides[ride_index]
+        if vehicle <= 61:
+            del bonus_rides[0]
+        else:
+            del bonus_rides[bonus_rides.index(ride)]
 
         if(len(bonus_rides) == 0): return schedule, bonus_rides
 
@@ -54,17 +79,6 @@ if __name__ == '__main__':
 
     sorted_rides = sorted(rides, key=lambda x: distance([0,0], x[1]))
 
-#     if bonus > 2:
-#         count = 0
-#         bonus_rides = []
-#         for ride in sorted_rides:
-#             dist = distance([0,0], ride[1])
-#             if dist > ride[3][0]: continue
-#             bonus_rides.append(ride)
-#             # count += 1
-#     else:
-#         bonus_rides = sorted_rides
-
     # ignore the name bonus_rides
     bonus_rides = sorted_rides
 
@@ -72,17 +86,31 @@ if __name__ == '__main__':
     schedule = {}
     # first schedule for vehicles at the start of simulation
     for i in range(vh):
-        cumm_steps = distance([0,0], bonus_rides[i][1]) + distance(bonus_rides[i][1], bonus_rides[i][2])
-        schedule[i] = [[bonus_rides[i][0]], cumm_steps]
-        rides_completed[bonus_rides[i][0]] = bonus_rides[i]
-        del bonus_rides[i]
+        if i <= 61:
+            bonus_rides = sorted(bonus_rides, key=lambda x: distance([0,0], x[1]) + distance(x[1], x[2]))
+            ride = bonus_rides[0]
+        else:
+            bonus_rides = sorted(bonus_rides, key=lambda x: distance(x[1], x[2]), reverse=True)
+            ride = bonus_rides[0]
+
+        cumm_steps = distance([0,0], ride[1]) + distance(ride[1], ride[2])
+        schedule[i] = [[ride[0]], cumm_steps]
+        rides_completed[ride[0]] = ride
+        if i <= 61:
+            del bonus_rides[0]
+        else:
+            del bonus_rides[bonus_rides.index(ride)]
 
     while(len(bonus_rides) != 0):
         br_size = len(bonus_rides)
         schedule, bonus_rides = next_schedule(schedule, bonus_rides, total_steps)
         if len(bonus_rides) == br_size: break
 
+    rides_taken = 0
     for i in schedule:
+        rides_taken += len(schedule[i][0])
+        # print(len(schedule[i][0]))
         print(len(schedule[i][0]), *schedule[i][0], sep=" ")
+    # print(f"total ride taken: {rides_taken}")
 
     # print(f"total time taken:{time.time() - start}")
