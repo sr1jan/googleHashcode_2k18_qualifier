@@ -1,0 +1,18 @@
+rows | columns | vehicles | rides | bonus | total_steps
+
+./in/a_example.in
+[3, 4, 2, 3, 2, 10]
+
+./in/b_should_be_easy.in
+[800, 1000, 100, 300, 25, 25000]
+
+./in/c_no_hurry.in
+[3000, 2000, 81, 10000, 1, 200000]
+
+./in/d_metropolis.in
+[10000, 10000, 400, 10000, 2, 50000]
+
+./in/e_high_bonus.in
+[1500, 2000, 350, 10000, 1000, 150000]
+
+
