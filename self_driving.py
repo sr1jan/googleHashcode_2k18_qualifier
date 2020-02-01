@@ -1,6 +1,6 @@
 def distance(start, end):
     x = abs(end[0] - start[0])
-    y = abs(end[1] - start[0])
+    y = abs(end[1] - start[1])
 
     return x + y
 

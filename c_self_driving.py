@@ -22,9 +22,11 @@ def next_schedule(schedule, bonus_rides, total_steps):
 
         finish_time = cumm_steps + distance(last_ride[2], ride[1]) + distance(ride[1], ride[2])
         c = 0
+        l = 0
         if finish_time > total_steps:
-            print(f"vehicle[{vehicle}]: ride:{ride[0]}, finish_time:{finish_time}")
+            # print(f"vehicle[{vehicle}]: ride:{ride[0]}, finish_time:{finish_time}")
             c+=1
+            l+=distance(ride[1], ride[2])
         # max_dist_rides = sorted(bonus_rides[:21], key=lambda x: distance(x[1], x[2]), reverse=True)
 
         # schedule[vehicle][0].append(min_dist_ride[2])
@@ -47,12 +49,9 @@ def next_schedule(schedule, bonus_rides, total_steps):
         # else:
         #     del bonus_rides[bonus_rides.index(ride)]
 
-        if(len(bonus_rides) == 0): return schedule, bonus_rides
+        if(len(bonus_rides) == 0): return schedule, bonus_rides, c, l
 
-
-    print(f"total not valid rides: {c}")
-
-    return schedule, bonus_rides
+    return schedule, bonus_rides, c, l
 
 
 if __name__ == '__main__':
@@ -99,12 +98,17 @@ if __name__ == '__main__':
         # else:
         #     del bonus_rides[bonus_rides.index(ride)]
 
+    c = 0
+    l = 0
     # iterating for next schedules
     while(len(bonus_rides) != 0):
         br_size = len(bonus_rides)
-        schedule, bonus_rides = next_schedule(schedule, bonus_rides, total_steps)
+        schedule, bonus_rides, nv, ln = next_schedule(schedule, bonus_rides, total_steps)
+        c+=nv
+        l+=ln
         if len(bonus_rides) == br_size: break
 
+    print(f"total not valid rides: {c}\ntotal points wasted: {l}")
     # output
     # for i in schedule:
     #     print(len(schedule[i][0]), *schedule[i][0], sep=" ")
